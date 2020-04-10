@@ -340,6 +340,7 @@
 <h4 id="性能考虑"><a href="#性能考虑" class="headerlink" title="性能考虑"></a>性能考虑</h4><p>第三个问题：默认机制尽管易于使用，但性能上并不是最好的。我把<code>Date</code>对象写到文件中1000次，重复这个过程一百次。写出<code>Date</code>对象的平均时间是115毫秒。然后我用标准I/O流手动将<code>Date</code>对象写出同样次数；平均耗时是52毫秒。差不多只用了一半的时间！这说明便捷与性能之间的博弈权衡在序列化中也是存在。如果速度是你程序的首要考虑因素，你可能需要考虑自己建立一套协议了。<br>前面说到对象引用会缓存在输出流中。因此如果流不关闭的化，写入到流中的对象是不会被系统进行垃圾回收的。最好是在写操作完成后尽早关闭流。</p>
 <h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>Java中的序列化是很简单的，实现起来同样简单。了解了实现序列化的三种方式对你使用API也很有帮助。我们已经在本文中了解到关于序列化机制的很多内容了，我希望本文把要讲的都讲清楚了。就像敲代码一样，关键是要熟悉API并对其有所理解。本文为理解Java序列化API奠定了坚实的基础，但我仍然建议你进一步阅读规范以了解更细粒度的细节。</p>
 <h4 id="关于作者"><a href="#关于作者" class="headerlink" title="关于作者"></a>关于作者</h4><p>Todd Greanier,director of technology for ComTech Training, has been teaching and developing Java since it was introduced publicly. An expert in distributed Java technologies, he teaches classes in a wide range of topics, including JDBC, RMI, CORBA, UML, Swing, servlets/JSP, security, JavaBeans, Enterprise Java Beans, and multithreading. He also creates custom seminars for corporations, slanted to their specific needs. Todd lives in upstate New York with his wife, Stacey, and his cat, Bean.</p>
+<p><a href="https://www.oracle.com/technical-resources/articles/java/javaserial.html" target="_blank" rel="noopener">原文地址</a></p>
 
           
         
