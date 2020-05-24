@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="TTT">
 <meta property="og:description" content="工作中经常会遇到想在A机器上访问B机器服务，但由于安全性的一些原因，A不能直接访问B，而是借助堡垒机去访问，访问过程中显得有些繁琐。如果此时你有一台C机器，A可以直接访问C，而C可以直接访问B，那么就可以在C上搭建网络代理服务，将A上原本要发给B的网络请求发给C，由C再转发给B，使得看上去就像是A直接访问B一样。本文档主要介绍如何利用C机器作为代理机器将A机器的网络包转发至B机器，以实现类似于直">
 <meta property="article:published_time" content="2020-05-24T04:26:06.696Z">
-<meta property="article:modified_time" content="2020-05-24T04:25:29.766Z">
+<meta property="article:modified_time" content="2020-05-24T04:45:44.772Z">
 <meta property="article:author" content="TTT">
 <meta name="twitter:card" content="summary">
 
@@ -301,6 +301,7 @@
         <blockquote>
 <p>工作中经常会遇到想在A机器上访问B机器服务，但由于安全性的一些原因，A不能直接访问B，而是借助堡垒机去访问，访问过程中显得有些繁琐。如果此时你有一台C机器，A可以直接访问C，而C可以直接访问B，那么就可以在C上搭建网络代理服务，将A上原本要发给B的网络请求发给C，由C再转发给B，使得看上去就像是A直接访问B一样。本文档主要介绍如何利用C机器作为代理机器将A机器的网络包转发至B机器，以实现类似于直连的效果。以下将A称为源机器，B称为目标机器，C称为代理机器。</p>
 </blockquote>
+<a id="more"></a>
 <h1 id="变量定义"><a href="#变量定义" class="headerlink" title="变量定义"></a>变量定义</h1><ul>
 <li>proxy_ip：代理机器的IP</li>
 <li>proxy_port：代理机器用于监听网络包的端口，所有发向该端口的网络包将被转发</li>
