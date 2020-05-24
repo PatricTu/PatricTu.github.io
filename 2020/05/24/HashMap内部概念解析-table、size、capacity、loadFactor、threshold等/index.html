@@ -79,14 +79,14 @@
 
 
 
-<meta name="description" content="HashMap是Java中最常用的集合类之一，内部实现原理对大部分人来说也是比较熟悉的，本文通过剖析HashMap内部的各个概念来深入理解HashMap的实现原理与一些细节。若无特别说明，以下内容描述的都是1.8版本中HashMap  table众所周知HashMap内部存储核心数据的是一个数组，称之为table。数组中每一个元素称之为桶（bucket）。每个桶内都可以装0个、1个或多个Node">
+<meta name="description" content="HashMap是Java中最常用的集合类之一，内部实现原理也很值得了解学习。本文通过剖析HashMap内部的各个概念来帮助读者深入理解HashMap的实现原理与一些细节。若无特别说明，以下内容描述的都是1.8版本中HashMap  table众所周知HashMap内部存储核心数据的是一个数组，称之为table。数组中每一个元素称之为桶（bucket）。每个桶内都可以装0个、1个或多个Node，而">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HashMap内部概念解析-table、size、capacity、loadFactor、threshold等">
 <meta property="og:url" content="http://tothetheia.com/2020/05/24/HashMap%E5%86%85%E9%83%A8%E6%A6%82%E5%BF%B5%E8%A7%A3%E6%9E%90-table%E3%80%81size%E3%80%81capacity%E3%80%81loadFactor%E3%80%81threshold%E7%AD%89/index.html">
 <meta property="og:site_name" content="TTT">
-<meta property="og:description" content="HashMap是Java中最常用的集合类之一，内部实现原理对大部分人来说也是比较熟悉的，本文通过剖析HashMap内部的各个概念来深入理解HashMap的实现原理与一些细节。若无特别说明，以下内容描述的都是1.8版本中HashMap  table众所周知HashMap内部存储核心数据的是一个数组，称之为table。数组中每一个元素称之为桶（bucket）。每个桶内都可以装0个、1个或多个Node">
-<meta property="article:published_time" content="2020-05-24T06:24:10.077Z">
-<meta property="article:modified_time" content="2020-05-24T08:45:43.303Z">
+<meta property="og:description" content="HashMap是Java中最常用的集合类之一，内部实现原理也很值得了解学习。本文通过剖析HashMap内部的各个概念来帮助读者深入理解HashMap的实现原理与一些细节。若无特别说明，以下内容描述的都是1.8版本中HashMap  table众所周知HashMap内部存储核心数据的是一个数组，称之为table。数组中每一个元素称之为桶（bucket）。每个桶内都可以装0个、1个或多个Node，而">
+<meta property="article:published_time" content="2020-05-24T11:16:02.252Z">
+<meta property="article:modified_time" content="2020-05-24T11:15:36.703Z">
 <meta property="article:author" content="TTT">
 <meta name="twitter:card" content="summary">
 
@@ -260,7 +260,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-24T14:24:10+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-05-24T19:16:02+08:00">
                 2020-05-24
               </time>
             
@@ -299,7 +299,7 @@
 
       
         <blockquote>
-<p>HashMap是Java中最常用的集合类之一，内部实现原理对大部分人来说也是比较熟悉的，本文通过剖析HashMap内部的各个概念来深入理解HashMap的实现原理与一些细节。若无特别说明，以下内容描述的都是1.8版本中HashMap</p>
+<p>HashMap是Java中最常用的集合类之一，内部实现原理也很值得了解学习。本文通过剖析HashMap内部的各个概念来帮助读者深入理解HashMap的实现原理与一些细节。若无特别说明，以下内容描述的都是1.8版本中HashMap</p>
 </blockquote>
 <h1 id="table"><a href="#table" class="headerlink" title="table"></a>table</h1><p>众所周知HashMap内部存储核心数据的是一个数组，称之为table。数组中每一个元素称之为桶（bucket）。每个桶内都可以装0个、1个或多个Node，而Node是<code>Map.Entry</code>的实现类，我们可以理解成一个Node即为一个key-value对。那么一个桶内是如何盛装多个Node的呢？有以下两种方式：</p>
 <ul>
@@ -307,18 +307,18 @@
 <li>红黑树：多个Node组织为一棵红黑树，每个桶只需要保存红黑树的根节点，也就相当于保存了整棵红黑树了<br>最开始时，所有桶都是用链表的方式盛装多个Node的。但当某个桶内元素过多后，为了提升查询效率，这个桶内的链表会转为红黑树；同样，当某个桶内元素过少时，这个桶内的红黑树又会转化为链表。</li>
 </ul>
 <h1 id="size"><a href="#size" class="headerlink" title="size"></a>size</h1><p>size是整个HashMap中所有Node的总数，也就是所有桶内Node数的总和。通过调用<code>size()</code>方法可以获取到当前HashMap的size，但方法内部并不是每一次调用都去计算每个桶内Node数然后求和返回，实际上HashMap中有一个成员变量<code>size</code>保存当前的Node总数，<code>size()</code>方法仅仅是将其返回而已。<code>size</code>初始值为0，在<code>put(K, V)</code>方法中put完成后会对<code>size</code>进行加1操作，同样在<code>remove(Object, Object)</code>方法中remove完成后会对<code>size</code>进行减1操作，这样<code>size</code>就始终为HashMap当前的Node总数。<br><code>size()</code>源码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public int size() &#123;</span><br><span class="line">    return size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Returns the number of key-value mappings in this map.</span><br><span class="line"> *</span><br><span class="line"> * @return the number of key-value mappings in this map</span><br><span class="line"> *&#x2F;</span><br><span class="line">public int size() &#123;</span><br><span class="line">    return size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h1 id="capacity"><a href="#capacity" class="headerlink" title="capacity"></a>capacity</h1><p>capacity中文为容量，乍一看会以为是用于限制HashMap中Node个数的，然而并不是。如果不考虑int溢出或内存溢出的话，HashMap对于Node个数理论上是没有限制的。capacity实际上是指table数组的长度，也就是桶的个数。同样，我们常听到的HashMap的“扩容”也并不是提升Node个数的上限，而是增加table数组的长度，允许更多桶存在。</p>
 <p>HashMap负责扩容的方法是<code>resize()</code>，它也负责初始化table数组。每次扩容，<code>resize()</code>方法都会创建一个新数组newTab，长度为旧数组oldTab的两倍，将table指向newTab，然后将oldTab中所有桶的所有Node rehash到newTab，至此扩容完毕。</p>
 <h1 id="DEFAULT-INITIAL-CAPACITY"><a href="#DEFAULT-INITIAL-CAPACITY" class="headerlink" title="DEFAULT_INITIAL_CAPACITY"></a>DEFAULT_INITIAL_CAPACITY</h1><p>HashMap提供三个构造方法，其中的<code>HashMap()</code>是较为常用的，由于在这个构造方法中没有指定table初始时的容量，因此table初始化时的长度就是DEFAULT_INITIAL_CAPACITY，即默认初始化容量，它在HashMap中是一个值为16的int型常量：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static final int DEFAULT_INITIAL_CAPACITY &#x3D; 1 &lt;&lt; 4; &#x2F;&#x2F; aka 16</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * The default initial capacity - MUST be a power of two.</span><br><span class="line"> *&#x2F;</span><br><span class="line">static final int DEFAULT_INITIAL_CAPACITY &#x3D; 1 &lt;&lt; 4; &#x2F;&#x2F; aka 16</span><br></pre></td></tr></table></figure>
 
 <h1 id="MAXIMUM-CAPACITY"><a href="#MAXIMUM-CAPACITY" class="headerlink" title="MAXIMUM_CAPACITY"></a>MAXIMUM_CAPACITY</h1><p>MAXIMUM_CAPACITY是最大容量，正如capacity是指table数组的长度而非Node的个数，MAXIMUM_CAPACITY也是对table数组长度的限制，禁止它无限制扩容，而不是对Node个数的限制。MAXIMUM_CAPACITY是一个值为1073741824的int型常量：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static final int MAXIMUM_CAPACITY &#x3D; 1 &lt;&lt; 30;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * The maximum capacity, used if a higher value is implicitly specified</span><br><span class="line"> * by either of the constructors with arguments.</span><br><span class="line"> * MUST be a power of two &lt;&#x3D; 1&lt;&lt;30.</span><br><span class="line"> *&#x2F;</span><br><span class="line">static final int MAXIMUM_CAPACITY &#x3D; 1 &lt;&lt; 30;</span><br></pre></td></tr></table></figure>
 
 <h1 id="initialCapacity"><a href="#initialCapacity" class="headerlink" title="initialCapacity"></a>initialCapacity</h1><p>HashMap的三个构造方法中，另一个较为常用的就是<code>HashMap(int)</code>了，其中的int入参即为initialCapacity，也就是指定的初始容量。但这个初始容量并不一定就是table初始化时的长度，table初始长度实际上是initialCapacity经过<code>tableSizeFor(int cap)</code>方法处理后的值。<code>tableSizeFor(int cap)</code>方法源码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">static final int tableSizeFor(int cap) &#123;</span><br><span class="line">    int n &#x3D; cap - 1;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 1;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 2;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 4;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 8;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 16;</span><br><span class="line">    return (n &lt; 0) ? 1 : (n &gt;&#x3D; MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Returns a power of two size for the given target capacity.</span><br><span class="line"> *&#x2F;</span><br><span class="line">static final int tableSizeFor(int cap) &#123;</span><br><span class="line">    int n &#x3D; cap - 1;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 1;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 2;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 4;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 8;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 16;</span><br><span class="line">    return (n &lt; 0) ? 1 : (n &gt;&#x3D; MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这个方法的作用是求出比入参<code>cap</code>大的最小的2的幂并返回作为table初始长度，这句话听着可能有点绕，看下面的表格会比较好理解这个方法到底是干嘛的：</p>
 <table>
 <thead>
@@ -367,12 +367,17 @@
 <td>……</td>
 <td>……</td>
 </tr>
-<tr>
-<td>代码中涉及的位运算含义此处不做说明，读者若感兴趣可自行查阅资料。</td>
-<td></td>
-</tr>
 </tbody></table>
-<h1 id="loadFactor"><a href="#loadFactor" class="headerlink" title="loadFactor"></a>loadFactor</h1><h1 id="threshold"><a href="#threshold" class="headerlink" title="threshold"></a>threshold</h1><h1 id="TREEIFY-THRESHOLD"><a href="#TREEIFY-THRESHOLD" class="headerlink" title="TREEIFY_THRESHOLD"></a>TREEIFY_THRESHOLD</h1><h1 id="UNTREEIFY-THRESHOLD"><a href="#UNTREEIFY-THRESHOLD" class="headerlink" title="UNTREEIFY_THRESHOLD"></a>UNTREEIFY_THRESHOLD</h1><h1 id="MIN-TREEIFY-CAPACITY"><a href="#MIN-TREEIFY-CAPACITY" class="headerlink" title="MIN_TREEIFY_CAPACITY"></a>MIN_TREEIFY_CAPACITY</h1><h1 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h1><h1 id="hashCode"><a href="#hashCode" class="headerlink" title="hashCode"></a>hashCode</h1>
+<p>代码中涉及的位运算含义此处不做说明，读者若感兴趣可自行查阅资料。</p>
+<h1 id="loadFactor"><a href="#loadFactor" class="headerlink" title="loadFactor"></a>loadFactor</h1><p>HashMap的最后一个构造方法是<code>HashMap(int, float)</code>，其中第一个int型参数就是前面提到的<code>initialCapacity</code>，而第二个float型参数则是负载因子<code>loadFactor</code>。其他两个没有指定负载因子的构造方法将会使用默认值0.75f。负载因子用于控制什么时候对table数组进行扩容，每次调用<code>put(K, V)</code>方法时，在将新Node加入到HashMap中后，会判断是否需要扩容：<code>size &gt; capacity * loadFactor</code>，如果表达式成立则扩容，否则容量保持不变。</p>
+<p>扩容时每次都是将容量扩为当前容量的两倍，考虑到如果不指定初始容量的话，初始容量默认为16；指定初始容量的话，初始容量也会处理为2的幂，因此一旦table数组初始化后，HashMap的容量就始终是2的幂。</p>
+<p>既然负载因子是用于判断size是否大到需要扩容，那么有没有另一个因子用于判断size是否小到需要缩容呢？答案是否定的，因为HashMap根本没有缩容机制！一旦HashMap对象的table数组扩容，那么这个对象在被回收之前都不会放弃这些堆内存空间。因此如果你需要在一个HashMap对象中remove大量元素，并且remove后很可能也不会再put了，那么建议你不要用remove，而是创建一个新的HashMap对象用于保存剩余无需remove的元素，原有的HashMap对象就让它变成垃圾被回收吧。</p>
+<p>既然知道了负载因子的用途，那很容易就能想到什么时候下需要使用<code>HashMap(int, float)</code>构造方法：不想用默认负载因子0.75f的时候。负载因子越大，那么扩容越难发生，table数组长度越小，桶内Node数量越多，查找效率越低，但table数组占用内存空间也越小；反之负载因子越大，查找效率越高，但table数组占用内存空间也越大。这是一个时间与空间的权衡，在真实使用场景下做出合适的选择即可。对时间和空间没有什么特别苛刻的要求时，建议直接使用默认的负载因子0.75f即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * The load factor for the hash table.</span><br><span class="line"> *</span><br><span class="line"> * @serial</span><br><span class="line"> *&#x2F;</span><br><span class="line">final float loadFactor;</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> * The load factor used when none specified in constructor.</span><br><span class="line"> *&#x2F;</span><br><span class="line">static final float DEFAULT_LOAD_FACTOR &#x3D; 0.75f;</span><br></pre></td></tr></table></figure>
+
+<h1 id="threshold"><a href="#threshold" class="headerlink" title="threshold"></a>threshold</h1><p>threshold直译为阈值，实际是扩容的阈值，它在table数组初始化后会等于<code>(int) (capacity * 0.75)</code>，因此上面提到的扩容判断<code>size &gt; capacity * loadFactor</code>与<code>size &gt; threshold</code>是等价的，在<code>put(K, V)</code>方法中判断是否需要扩容的表达式使用的是后者。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * The next size value at which to resize (capacity * load factor).</span><br><span class="line"> *</span><br><span class="line"> * @serial</span><br><span class="line"> *&#x2F;</span><br><span class="line">&#x2F;&#x2F; (The javadoc description is true upon serialization.</span><br><span class="line">&#x2F;&#x2F; Additionally, if the table array has not been allocated, this</span><br><span class="line">&#x2F;&#x2F; field holds the initial array capacity, or zero signifying</span><br><span class="line">&#x2F;&#x2F; DEFAULT_INITIAL_CAPACITY.)</span><br><span class="line">int threshold;</span><br></pre></td></tr></table></figure>
+
       
     </div>
     
@@ -518,7 +523,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#table"><span class="nav-number">1.</span> <span class="nav-text">table</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#size"><span class="nav-number">2.</span> <span class="nav-text">size</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#capacity"><span class="nav-number">3.</span> <span class="nav-text">capacity</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DEFAULT-INITIAL-CAPACITY"><span class="nav-number">4.</span> <span class="nav-text">DEFAULT_INITIAL_CAPACITY</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MAXIMUM-CAPACITY"><span class="nav-number">5.</span> <span class="nav-text">MAXIMUM_CAPACITY</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#initialCapacity"><span class="nav-number">6.</span> <span class="nav-text">initialCapacity</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#loadFactor"><span class="nav-number">7.</span> <span class="nav-text">loadFactor</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#threshold"><span class="nav-number">8.</span> <span class="nav-text">threshold</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TREEIFY-THRESHOLD"><span class="nav-number">9.</span> <span class="nav-text">TREEIFY_THRESHOLD</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UNTREEIFY-THRESHOLD"><span class="nav-number">10.</span> <span class="nav-text">UNTREEIFY_THRESHOLD</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MIN-TREEIFY-CAPACITY"><span class="nav-number">11.</span> <span class="nav-text">MIN_TREEIFY_CAPACITY</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hash"><span class="nav-number">12.</span> <span class="nav-text">hash</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hashCode"><span class="nav-number">13.</span> <span class="nav-text">hashCode</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#table"><span class="nav-number">1.</span> <span class="nav-text">table</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#size"><span class="nav-number">2.</span> <span class="nav-text">size</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#capacity"><span class="nav-number">3.</span> <span class="nav-text">capacity</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DEFAULT-INITIAL-CAPACITY"><span class="nav-number">4.</span> <span class="nav-text">DEFAULT_INITIAL_CAPACITY</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MAXIMUM-CAPACITY"><span class="nav-number">5.</span> <span class="nav-text">MAXIMUM_CAPACITY</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#initialCapacity"><span class="nav-number">6.</span> <span class="nav-text">initialCapacity</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#loadFactor"><span class="nav-number">7.</span> <span class="nav-text">loadFactor</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#threshold"><span class="nav-number">8.</span> <span class="nav-text">threshold</span></a></li></ol></div>
             
 
           </div>
