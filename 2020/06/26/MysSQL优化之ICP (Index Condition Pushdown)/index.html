@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="TTT">
 <meta property="og:description" content="ICP (Index Condition Pushdown) 是MySQL 5.6之后引入的一种针对特定select语句的优化策略，它将原本需要在server层做的根据条件筛选的动作下推（pushdown）到了存储引擎层，减少了存储引擎访问基表的次数和存储引擎返回给server的记录数，以此实现优化查询的效果。本文将通过一个例子来具体分析ICP引入前后的差异   注：若没有特殊说明，本文涉及的M">
 <meta property="article:published_time" content="2020-06-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2020-06-26T02:56:46.325Z">
+<meta property="article:modified_time" content="2020-06-26T03:02:56.994Z">
 <meta property="article:author" content="TTT">
 <meta name="twitter:card" content="summary">
 
@@ -333,7 +333,7 @@
 <ul>
 <li>ICP 适用于需要全表字段访问时的 range, ref, eq_ref, and ref_or_null 访问模式。</li>
 <li>ICP 适用于 InnoDB 和 MyISAM 表，包括分区表。</li>
-<li>对于 InnoDB 表，ICP仅适用于二级索引。ICP 优化的目的是减少全行读的次数进而减少 I/O 操作。对于 InnoDB。 聚集索引，记录行的所有字段都已经读到了 InnoDB 缓冲。在这种情况下使用ICP并不能减少 I/O。</li>
+<li>对于 InnoDB 表，ICP仅适用于二级索引。ICP 优化的目的是减少全行读的次数进而减少 I/O 操作。对于 InnoDB 的聚集索引，记录行的所有字段都已经读到了 InnoDB 缓冲。在这种情况下使用ICP并不能减少 I/O。</li>
 <li>ICP 不适用于 virtual generated columns 上的二级索引。InnoDB是支持在 virtual generated columns 上建立二级索引的。</li>
 <li>引用了子查询的条件不能下推。</li>
 <li>引用了存储引擎的条件不能下推。存储引擎无法调用存储引擎。</li>
